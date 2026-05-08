@@ -15,18 +15,47 @@ internal sealed class Group(Exam exam, IReadOnlyList<Student.Student> students)
     private const int IdColumnNumber = 1;
     private const int FirstQuestionColumnNumber = 2;
 
-    public Exam Exam { get; } = exam;
-    public IReadOnlyList<Student.Student> All { get; } = students;
+    public Exam Exam => exam;
+    public IReadOnlyList<Student.Student> Students => students;
 
-    public IReadOnlyList<StudentResult> Results() =>
-        All.Select(ToResult).ToList();
+    public IReadOnlyList<QuestionAnalytic> QuestionAnalytics() =>
+        Exam.Questions
+            .Select((question, index) => QuestionAnalytic.Build(
+                question,
+                Students.Select(student => student.QuestionScores[index]).ToList()))
+            .ToList();
 
     public int WriteResultsCsv(string outputPath)
     {
-        var results = Results();
+        var results = Students.Select(ToResult).ToList();
+
         var table = BuildResultsTable(results);
         new CsvWriter().Write(table, outputPath);
+
         return results.Count;
+    }
+
+    public int WriteQuestionAnalyticsCsv(string outputPath)
+    {
+        var analytics = QuestionAnalytics();
+
+        var table = BuildQuestionAnalyticsTable(analytics);
+        new CsvWriter().Write(table, outputPath);
+
+        return analytics.Count;
+    }
+
+    public static Group LoadFromXlsx(string path)
+    {
+        using var workbook = new XLWorkbook(path);
+        
+        var sheet = workbook.Worksheet(1);
+        
+        var questionCount = QuestionCount(sheet);
+        var exam = new Exam(ReadQuestions(sheet, questionCount));
+        var students = ReadStudents(sheet, questionCount);
+        
+        return new Group(exam, students);
     }
 
     private MemoryTable BuildResultsTable(IReadOnlyList<StudentResult> results)
@@ -46,14 +75,17 @@ internal sealed class Group(Exam exam, IReadOnlyList<Student.Student> students)
         return new MemoryTable(header, rows);
     }
 
-    public static Group LoadFromXlsx(string path)
+    private static MemoryTable BuildQuestionAnalyticsTable(IReadOnlyList<QuestionAnalytic> analytics)
     {
-        using var workbook = new XLWorkbook(path);
-        var sheet = workbook.Worksheet(1);
-        var questionCount = QuestionCount(sheet);
-        var exam = new Exam(ReadQuestions(sheet, questionCount));
-        var students = ReadStudents(sheet, questionCount);
-        return new Group(exam, students);
+        var header = new[] { "Number", "PValue" };
+        var rows = analytics
+            .Select(a => (IReadOnlyList<string>)new[]
+            {
+                a.Number.ToString(CultureInfo.InvariantCulture),
+                a.PValue.ToString("0.###", CultureInfo.InvariantCulture),
+            })
+            .ToList();
+        return new MemoryTable(header, rows);
     }
 
     private StudentResult ToResult(Student.Student student)

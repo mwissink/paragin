@@ -14,7 +14,7 @@ internal static class CommandLine
 
     public static int Run(string[] args, TextWriter stdout, TextWriter stderr)
     {
-        if (!TryParse(args, out var input, out var output, out var error))
+        if (!TryParse(args, out var input, out var output, out var analyticsOutput, out var error))
         {
             stderr.WriteLine(error);
             WriteUsage(stderr);
@@ -27,12 +27,18 @@ internal static class CommandLine
             return ExitInputNotFound;
         }
 
+        var resolvedAnalyticsOutput = string.IsNullOrWhiteSpace(analyticsOutput)
+            ? DefaultAnalyticsOutput(output)
+            : analyticsOutput;
+
         try
         {
             var students = GroupType.LoadFromXlsx(input);
             var count = students.WriteResultsCsv(output);
+            var analyticsCount = students.WriteQuestionAnalyticsCsv(resolvedAnalyticsOutput);
 
             stdout.WriteLine($"Students: {count}");
+            stdout.WriteLine($"Questions: {analyticsCount}");
         }
         catch (IOException ex)
         {
@@ -45,15 +51,26 @@ internal static class CommandLine
             return ExitIoError;
         }
 
-        stdout.WriteLine($"Read:  {input}");
-        stdout.WriteLine($"Wrote: {output}");
+        stdout.WriteLine($"Read:      {input}");
+        stdout.WriteLine($"Wrote:     {output}");
+        stdout.WriteLine($"Analytics: {resolvedAnalyticsOutput}");
         return ExitSuccess;
     }
 
-    private static bool TryParse(string[] args, out string input, out string output, out string error)
+    private static string DefaultAnalyticsOutput(string output)
+    {
+        var dir = Path.GetDirectoryName(output);
+        var name = Path.GetFileNameWithoutExtension(output);
+        var ext = Path.GetExtension(output);
+        var analyticsName = $"{name}.analytics{ext}";
+        return string.IsNullOrEmpty(dir) ? analyticsName : Path.Combine(dir, analyticsName);
+    }
+
+    private static bool TryParse(string[] args, out string input, out string output, out string analyticsOutput, out string error)
     {
         input = string.Empty;
         output = string.Empty;
+        analyticsOutput = string.Empty;
         error = string.Empty;
 
         for (var i = 0; i < args.Length; i++)
@@ -78,6 +95,15 @@ internal static class CommandLine
                         return false;
                     }
                     output = args[++i];
+                    break;
+                case "-a":
+                case "--analytics-output":
+                    if (i + 1 >= args.Length)
+                    {
+                        error = $"Missing value for {arg}.";
+                        return false;
+                    }
+                    analyticsOutput = args[++i];
                     break;
                 case "-h":
                 case "--help":
@@ -106,9 +132,11 @@ internal static class CommandLine
 
     private static void WriteUsage(TextWriter writer)
     {
-        writer.WriteLine("Usage: paragin-exam --input <path> --output <path>");
-        writer.WriteLine("  -i, --input   Path to the input file.");
-        writer.WriteLine("  -o, --output  Path where the output file will be written.");
-        writer.WriteLine("  -h, --help    Show this help.");
+        writer.WriteLine("Usage: paragin-exam --input <path> --output <path> [--analytics-output <path>]");
+        writer.WriteLine("  -i, --input              Path to the input file.");
+        writer.WriteLine("  -o, --output             Path where the results CSV will be written.");
+        writer.WriteLine("  -a, --analytics-output   Path where the question analytics CSV will be written.");
+        writer.WriteLine("                           Defaults to <output>.analytics.<ext> next to --output.");
+        writer.WriteLine("  -h, --help               Show this help.");
     }
 }
