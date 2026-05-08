@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<OutputType>Exe</OutputType>
+	<RootNamespace>Paragin.ExamAnalyzer.Cli</RootNamespace>
+	<AssemblyName>paragin-exam</AssemblyName>
+  </PropertyGroup>
+
+</Project>
