@@ -53,8 +53,8 @@ internal sealed class ExcelStudentsReader
         }
     }
 
-    private static IReadOnlyList<decimal> ReadQuestionScores(IXLRow row, int questionCount) =>
+    private static IReadOnlyList<double> ReadQuestionScores(IXLRow row, int questionCount) =>
         Enumerable.Range(0, questionCount)
-            .Select(i => row.Cell(FirstQuestionColumnNumber + i).GetValue<decimal>())
+            .Select(i => row.Cell(FirstQuestionColumnNumber + i).GetValue<double>())
             .ToList();
 }

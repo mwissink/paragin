@@ -5,7 +5,7 @@ using Paragin.ExamAnalyzer.Cli.Exams;
 
 namespace Paragin.ExamAnalyzer.Cli.Students;
 
-internal sealed record StudentResult(int Number, string Id, decimal TotalScore, decimal Grade, bool Passed);
+internal sealed record StudentResult(int Number, string Id, double TotalScore, double Grade, bool Passed);
 
 internal sealed class Group(Exam exam, IReadOnlyList<Student.Student> students)
 {
@@ -18,12 +18,16 @@ internal sealed class Group(Exam exam, IReadOnlyList<Student.Student> students)
     public Exam Exam => exam;
     public IReadOnlyList<Student.Student> Students => students;
 
-    public IReadOnlyList<QuestionAnalytic> QuestionAnalytics() =>
-        Exam.Questions
+    public IReadOnlyList<QuestionAnalytic> QuestionAnalytics()
+    {
+        var totalScores = Students.Select(student => student.TotalScore).ToList();
+        return Exam.Questions
             .Select((question, index) => QuestionAnalytic.Build(
                 question,
-                Students.Select(student => student.QuestionScores[index]).ToList()))
+                Students.Select(student => student.QuestionScores[index]).ToList(),
+                totalScores))
             .ToList();
+    }
 
     public int WriteResultsCsv(string outputPath)
     {
@@ -77,12 +81,13 @@ internal sealed class Group(Exam exam, IReadOnlyList<Student.Student> students)
 
     private static MemoryTable BuildQuestionAnalyticsTable(IReadOnlyList<QuestionAnalytic> analytics)
     {
-        var header = new[] { "Number", "PValue" };
+        var header = new[] { "Number", "PValue", "RitValue" };
         var rows = analytics
             .Select(a => (IReadOnlyList<string>)new[]
             {
                 a.Number.ToString(CultureInfo.InvariantCulture),
                 a.PValue.ToString("0.###", CultureInfo.InvariantCulture),
+                a.RitValue.ToString("0.###", CultureInfo.InvariantCulture),
             })
             .ToList();
         return new MemoryTable(header, rows);
@@ -125,8 +130,8 @@ internal sealed class Group(Exam exam, IReadOnlyList<Student.Student> students)
         }
     }
 
-    private static IReadOnlyList<decimal> ReadQuestionScores(IXLRow row, int questionCount) =>
+    private static IReadOnlyList<double> ReadQuestionScores(IXLRow row, int questionCount) =>
         Enumerable.Range(0, questionCount)
-            .Select(i => row.Cell(FirstQuestionColumnNumber + i).GetValue<decimal>())
+            .Select(i => row.Cell(FirstQuestionColumnNumber + i).GetValue<double>())
             .ToList();
 }

@@ -2,19 +2,19 @@ namespace Paragin.ExamAnalyzer.Cli.Exams;
 
 internal sealed class Exam(IReadOnlyList<Question> questions)
 {
-    private const decimal MinGrade = 1.0m;
-    private const decimal PassGrade = 5.5m;
-    private const decimal MaxGrade = 10.0m;
+    private const double MinGrade = 1.0;
+    private const double PassGrade = 5.5;
+    private const double MaxGrade = 10.0;
 
-    private const decimal MinGradeBoundary = 0.20m;
-    private const decimal PassBoundary = 0.70m;
-    private const decimal MaxGradeBoundary = 1.00m;
+    private const double MinGradeBoundary = 0.20;
+    private const double PassBoundary = 0.70;
+    private const double MaxGradeBoundary = 1.00;
 
     public IReadOnlyList<Question> Questions { get; } = questions;
 
     public int MaxScore { get; } = questions.Sum(q => q.MaxScore);
 
-    public decimal CalculateGrade(decimal score)
+    public double CalculateGrade(double score)
     {
         if (MaxScore == 0)
         {
@@ -22,7 +22,7 @@ internal sealed class Exam(IReadOnlyList<Question> questions)
         }
 
         var fraction = score / MaxScore;
-        decimal grade;
+        double grade;
 
         if (fraction <= MinGradeBoundary)
         {
@@ -44,5 +44,5 @@ internal sealed class Exam(IReadOnlyList<Question> questions)
         return Math.Round(grade, 1, MidpointRounding.AwayFromZero);
     }
 
-    public bool HasPassed(decimal grade) => grade >= PassGrade;
+    public bool HasPassed(double grade) => grade >= PassGrade;
 }

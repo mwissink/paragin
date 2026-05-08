@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Paragin.ExamAnalyzer.Cli": {
+      "commandName": "Project",
+      "commandLineArgs": "--input \"Documents\\Developer Assignment Sample_Data.xlsx\" --output \"C:\\Temp\\results.csv\" --analytics-output \"C:\\Temp\\analytics.csv\"",
+      "workingDirectory": "$(SolutionDir)"
+    }
+  }
+}
