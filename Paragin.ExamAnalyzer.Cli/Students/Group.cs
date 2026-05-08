@@ -1,14 +1,13 @@
 using ClosedXML.Excel;
 using System.Globalization;
 using Paragin.ExamAnalyzer.Cli.Csv;
-using Paragin.ExamAnalyzer.Cli.Exam;
-using Paragin.ExamAnalyzer.Cli.Student;
+using Paragin.ExamAnalyzer.Cli.Exams;
 
 namespace Paragin.ExamAnalyzer.Cli.Students;
 
 internal sealed record StudentResult(int Number, string Id, decimal TotalScore, decimal Grade, bool Passed);
 
-internal sealed class Group(Exam.Exam exam, IReadOnlyList<Student.Student> students)
+internal sealed class Group(Exam exam, IReadOnlyList<Student.Student> students)
 {
     private const int HeaderRowNumber = 1;
     private const int MaxScoreRowNumber = 2;
@@ -16,7 +15,7 @@ internal sealed class Group(Exam.Exam exam, IReadOnlyList<Student.Student> stude
     private const int IdColumnNumber = 1;
     private const int FirstQuestionColumnNumber = 2;
 
-    public Exam.Exam Exam { get; } = exam;
+    public Exam Exam { get; } = exam;
     public IReadOnlyList<Student.Student> All { get; } = students;
 
     public IReadOnlyList<StudentResult> Results() =>
@@ -52,7 +51,7 @@ internal sealed class Group(Exam.Exam exam, IReadOnlyList<Student.Student> stude
         using var workbook = new XLWorkbook(path);
         var sheet = workbook.Worksheet(1);
         var questionCount = QuestionCount(sheet);
-        var exam = new Exam.Exam(ReadQuestions(sheet, questionCount));
+        var exam = new Exam(ReadQuestions(sheet, questionCount));
         var students = ReadStudents(sheet, questionCount);
         return new Group(exam, students);
     }

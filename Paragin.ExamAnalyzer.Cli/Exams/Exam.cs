@@ -1,4 +1,4 @@
-namespace Paragin.ExamAnalyzer.Cli.Exam;
+namespace Paragin.ExamAnalyzer.Cli.Exams;
 
 internal sealed class Exam(IReadOnlyList<Question> questions)
 {
