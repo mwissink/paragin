@@ -21,3 +21,5 @@
 - Concrete service and adapter implementations should be `internal`. Only interfaces are `public`.
 - Azure Functions trigger classes are exempt from the `internal` rule and must be `public`, but must still be `sealed`.
 - Use `OneOf` for result types. Do not throw exceptions for expected failure cases. Error types are `sealed record`s.
+- Use the The Clean Code paradigm.
+- Use linq where it would make code more readable, but not for complex queries where it would make code less readable. When in doubt, prefer readability over brevity.

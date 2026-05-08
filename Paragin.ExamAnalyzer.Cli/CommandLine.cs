@@ -1,4 +1,9 @@
+using Paragin.ExamAnalyzer.Cli.Student;
+using Paragin.ExamAnalyzer.Cli.Students;
+
 namespace Paragin.ExamAnalyzer.Cli;
+
+using GroupType = Group;
 
 internal static class CommandLine
 {
@@ -24,14 +29,10 @@ internal static class CommandLine
 
         try
         {
-            var outputDir = Path.GetDirectoryName(Path.GetFullPath(output));
-            if (!string.IsNullOrEmpty(outputDir))
-            {
-                Directory.CreateDirectory(outputDir);
-            }
+            var students = GroupType.LoadFromXlsx(input);
+            var count = students.WriteResultsCsv(output);
 
-            // Placeholder: copy input to output so the round-trip works end-to-end.
-            File.Copy(input, output, overwrite: true);
+            stdout.WriteLine($"Students: {count}");
         }
         catch (IOException ex)
         {

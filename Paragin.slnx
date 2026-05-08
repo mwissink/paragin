@@ -7,5 +7,9 @@
     <File Path="Directory.Packages.props" />
     <File Path="nuget.config" />
   </Folder>
+  <Folder Name="/Documents/">
+    <File Path="Documents/Developer Assignment - Generic.pdf" />
+    <File Path="Documents/Developer Assignment Sample_Data.xlsx" />
+  </Folder>
   <Project Path="Paragin.ExamAnalyzer.Cli/Paragin.ExamAnalyzer.Cli.csproj" />
 </Solution>

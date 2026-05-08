@@ -6,4 +6,12 @@
 	<AssemblyName>paragin-exam</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+	<PackageReference Include="ClosedXML" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Group\" />
+  </ItemGroup>
+
 </Project>
