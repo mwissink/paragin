@@ -11,5 +11,8 @@
     <File Path="Documents/Developer Assignment - Generic.pdf" />
     <File Path="Documents/Developer Assignment Sample_Data.xlsx" />
   </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
   <Project Path="Paragin.ExamAnalyzer.Cli/Paragin.ExamAnalyzer.Cli.csproj" />
 </Solution>
